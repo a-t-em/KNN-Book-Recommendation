@@ -7,7 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1HdwtfxWyACZa0wdoRBeHZRI6WbZEShhk
 """
 
-# import libraries (you may add additional imports but you may not have to)
 import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
@@ -17,7 +16,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import TruncatedSVD
 
-# get data files
+# get data files from fcc
 !wget https://cdn.freecodecamp.org/project-data/books/book-crossings.zip
 
 !unzip book-crossings.zip
@@ -25,7 +24,6 @@ from sklearn.decomposition import TruncatedSVD
 books_filename = 'BX-Books.csv'
 ratings_filename = 'BX-Book-Ratings.csv'
 
-# import csv data into dataframes
 df_books = pd.read_csv(
     books_filename,
     encoding = "ISO-8859-1",
@@ -51,7 +49,6 @@ df.head()
 x = df.rating.values.reshape(-1, 1)
 x_scaled = MinMaxScaler().fit_transform(x)
 df['rating'] = pd.DataFrame(x_scaled)
-print(df.head())
 
 combine_book_rating = df.dropna(axis = 0, subset = ['isbn'])
 book_rating_count = (combine_book_rating.groupby(by = ['isbn'])['rating'].count().reset_index().rename(columns = {'rating': 'total_ratings'})[['isbn', 'total_ratings']])
@@ -117,7 +114,7 @@ def get_recommends(book = ""):
       knn_corr[i-1] = corr[isbn_rec][isbn_query][0]
       knn_coeff = float(distances.flatten()[-i])
       recommends[1].append([title[0], knn_coeff, knn_corr[i-1]])
-  print(recommends[1])
+ 
   correlations = np.sort(knn_corr)[::-1]
   rec = [1, []]
   rec[0] = book
@@ -126,23 +123,3 @@ def get_recommends(book = ""):
       if recommends[1][j][2] == correlations[i]:
         rec[1].append([recommends[1][j][0], recommends[1][j][1]])
   return rec
-
-def test_book_recommendation():
-  test_pass = True
-  recommends = get_recommends("Where the Heart Is (Oprah's Book Club (Paperback))")
-  print(recommends)
-  if recommends[0] != "Where the Heart Is (Oprah's Book Club (Paperback))":
-    test_pass = False
-  recommended_books = ["I'll Be Seeing You", 'The Weight of Water', 'The Surgeon', 'I Know This Much Is True']
-  recommended_books_dist = [0.8, 0.77, 0.77, 0.77]
-  for i in range(2): 
-    if recommends[1][i][0] not in recommended_books:
-      test_pass = False
-    if abs(recommends[1][i][1] - recommended_books_dist[i]) >= 0.05:
-      test_pass = False
-  if test_pass:
-    print("You passed the challenge! 🎉🎉🎉🎉🎉")
-  else:
-    print("You haven't passed yet. Keep trying!")
-
-test_book_recommendation()
